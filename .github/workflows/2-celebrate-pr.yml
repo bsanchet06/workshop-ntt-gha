@@ -1,0 +1,23 @@
+# Demostración en vivo del trigger `pull_request` para la Sesión 3.
+# En cuanto el asistente abre su Pull Request, este workflow comenta ahí mismo.
+
+name: "Workshop 🚀 - Celebrar tu primer PR"
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  celebrate:
+    name: Comentar en el Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comentar en el PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr comment "$PR_URL" --body "🎉 ¡Este comentario lo generó GitHub Actions automáticamente en cuanto abriste el Pull Request! Así de directo es el trigger \`pull_request\`. Revisa la pestaña **Checks** de este PR para ver tu workflow \`Hello World\` corriendo también."

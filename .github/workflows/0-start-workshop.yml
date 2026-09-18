@@ -1,0 +1,50 @@
+# Este workflow arranca el workshop.
+# El asistente lo corre manualmente (workflow_dispatch) justo después de hacer fork.
+# Crea un Issue de seguimiento con el contenido de la Sesión 1.
+
+name: "Workshop 🚀 - Iniciar"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  start_workshop:
+    name: Crear el issue de seguimiento
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Buscar issue de seguimiento existente
+        id: find_issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NUMBER=$(gh issue list \
+            --search "\"Mi progreso: GitHub Actions Semana 1\" in:title" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Crear issue con el contenido del Paso 1
+        if: steps.find_issue.outputs.number == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "Mi progreso: GitHub Actions Semana 1 · Paso 1" \
+            --body-file .github/steps/0-welcome.md
+
+      - name: Recordatorio si ya existía un issue en curso
+        if: steps.find_issue.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.find_issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" \
+            --body "👋 Ya tienes un workshop en progreso. Sigue las instrucciones más arriba en este mismo issue."

@@ -1,0 +1,142 @@
+# Este workflow es el "checker" del workshop.
+# Corre cada vez que se hace push a main tocando hello-world.yml.
+# Lee en qué paso va el asistente (guardado en el título del issue de seguimiento),
+# valida el contenido de su workflow, comenta el resultado y avanza al siguiente paso.
+
+name: "Workshop 🚀 - Revisar avance"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/hello-world.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check_progress:
+    name: Revisar la actividad y dar feedback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ubicar el issue de seguimiento y el paso actual
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DATA=$(gh issue list \
+            --search "\"Mi progreso: GitHub Actions Semana 1\" in:title" \
+            --state open \
+            --json number,title \
+            --jq '.[0]')
+
+          if [ -z "$DATA" ] || [ "$DATA" = "null" ]; then
+            echo "⚠️ No se encontró un issue de seguimiento abierto."
+            echo "Corre primero el workflow 'Workshop 🚀 - Iniciar' desde la pestaña Actions."
+            exit 0
+          fi
+
+          NUMBER=$(echo "$DATA" | jq -r '.number')
+          TITLE=$(echo "$DATA" | jq -r '.title')
+          STEP=$(echo "$TITLE" | grep -oE 'Paso [0-9]+' | grep -oE '[0-9]+' || true)
+
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+          echo "step=$STEP" >> "$GITHUB_OUTPUT"
+
+      # ---------- PASO 1: workflow_dispatch ----------
+
+      - name: Validar Paso 1 (workflow_dispatch)
+        if: steps.issue.outputs.step == '1'
+        id: check1
+        run: |
+          FILE=.github/workflows/hello-world.yml
+          OK=true
+          grep -q "workflow_dispatch" "$FILE" || OK=false
+          grep -q "runs-on:" "$FILE" || OK=false
+          grep -q "run:" "$FILE" || OK=false
+          echo "passed=$OK" >> "$GITHUB_OUTPUT"
+
+      - name: Feedback Paso 1 — correcto, desbloquear Paso 2
+        if: steps.issue.outputs.step == '1' && steps.check1.outputs.passed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body-file .github/steps/1-step.md
+          gh issue edit "$NUMBER" --title "Mi progreso: GitHub Actions Semana 1 · Paso 2"
+
+      - name: Feedback Paso 1 — a revisar
+        if: steps.issue.outputs.step == '1' && steps.check1.outputs.passed == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body "🔎 Casi. Revisa que \`hello-world.yml\` tenga el trigger \`workflow_dispatch\`, un \`runs-on\` y al menos un step con \`run:\`. Corrige y vuelve a hacer commit a \`main\`."
+
+      # ---------- PASO 2: push + checkout + múltiples steps ----------
+
+      - name: Validar Paso 2 (push, checkout, varios steps)
+        if: steps.issue.outputs.step == '2'
+        id: check2
+        run: |
+          FILE=.github/workflows/hello-world.yml
+          OK=true
+          grep -q "push:" "$FILE" || OK=false
+          grep -q "branches:" "$FILE" || OK=false
+          grep -q "actions/checkout@v" "$FILE" || OK=false
+          COUNT=$(grep -c "run:" "$FILE" || true)
+          [ "$COUNT" -ge 2 ] || OK=false
+          echo "passed=$OK" >> "$GITHUB_OUTPUT"
+
+      - name: Feedback Paso 2 — correcto, desbloquear Paso 3
+        if: steps.issue.outputs.step == '2' && steps.check2.outputs.passed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body-file .github/steps/2-step.md
+          gh issue edit "$NUMBER" --title "Mi progreso: GitHub Actions Semana 1 · Paso 3"
+
+      - name: Feedback Paso 2 — a revisar
+        if: steps.issue.outputs.step == '2' && steps.check2.outputs.passed == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body "🔎 Casi. Revisa que tengas \`push\` con \`branches\`, el step \`actions/checkout@v4\` y al menos dos steps con \`run:\`."
+
+      # ---------- PASO 3: pull_request + schedule ----------
+
+      - name: Validar Paso 3 (pull_request, schedule)
+        if: steps.issue.outputs.step == '3'
+        id: check3
+        run: |
+          FILE=.github/workflows/hello-world.yml
+          OK=true
+          grep -q "pull_request:" "$FILE" || OK=false
+          grep -q "schedule:" "$FILE" || OK=false
+          grep -q "cron:" "$FILE" || OK=false
+          echo "passed=$OK" >> "$GITHUB_OUTPUT"
+
+      - name: Feedback Paso 3 — correcto, cerrar el workshop
+        if: steps.issue.outputs.step == '3' && steps.check3.outputs.passed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body-file .github/steps/x-final.md
+          gh issue edit "$NUMBER" --title "Mi progreso: GitHub Actions Semana 1 · Completado 🎉"
+          gh issue close "$NUMBER"
+
+      - name: Feedback Paso 3 — a revisar
+        if: steps.issue.outputs.step == '3' && steps.check3.outputs.passed == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          gh issue comment "$NUMBER" --body "🔎 Casi. Revisa que tengas los triggers \`pull_request\` y \`schedule\` (con una línea \`cron:\`) además de los que ya tenías."
