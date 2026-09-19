@@ -51,7 +51,3 @@ Todo el "bot" que te da feedback es, en sí mismo, GitHub Actions:
 - `.github/workflows/2-celebrate-pr.yml` comenta en tu Pull Request en cuanto lo abres.
 
 No necesitas entenderlos para completar el workshop, pero una vez termines la Sesión 3 ya tendrás las herramientas para leerlos y entender exactamente cómo funcionan.
-
-## Para instructores
-
-Revisa [INSTRUCTOR.md](./INSTRUCTOR.md) para la guía de facilitación, timing sugerido por sesión y solución de problemas comunes.
