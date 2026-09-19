@@ -20,11 +20,12 @@ Este repositorio es **interactivo**: a medida que completas cada actividad, GitH
 > ⚠️ Este workshop funciona por medio de un **fork**, no de una copia de plantilla, para que cada asistente tenga su propio repositorio independiente conectado al original.
 
 1. Haz clic en **Fork** (arriba a la derecha de este repositorio) y crea el fork en tu cuenta personal.
-2. Entra a tu fork → pestaña **Actions**. GitHub deshabilita los workflows en todo fork nuevo por seguridad, así que haz clic en **"I understand my workflows, go ahead and enable them"**.
-3. En la lista de workflows de la izquierda, selecciona **"Workshop 🚀 - Iniciar"**.
-4. Haz clic en **Run workflow** → rama `main` → **Run workflow**.
-5. Espera unos 15–20 segundos y **actualiza la página**. Se creará automáticamente un Issue llamado **"Mi progreso: GitHub Actions Semana 1 · Paso 1"** con las instrucciones de la primera actividad.
-6. Sigue las instrucciones del Issue. Cada vez que hagas `push` a `main` con la actividad completa, el mismo Issue se actualizará con feedback y el contenido del siguiente paso.
+2. En tu fork, ve a **Settings → General → Features** y activa la casilla **Issues** (los forks la traen desactivada por defecto).
+3. Entra a tu fork → pestaña **Actions**. GitHub deshabilita los workflows en todo fork nuevo por seguridad, así que haz clic en **"I understand my workflows, go ahead and enable them"**.
+4. En la lista de workflows de la izquierda, selecciona **"Workshop 🚀 - Iniciar"**.
+5. Haz clic en **Run workflow** → rama `main` → **Run workflow**.
+6. Espera unos 15–20 segundos y **actualiza la página**. Se creará automáticamente un Issue llamado **"Mi progreso: GitHub Actions Semana 1 · Paso 1"** con las instrucciones de la primera actividad.
+7. Sigue las instrucciones del Issue. Cada vez que hagas `push` a `main` con la actividad completa, el mismo Issue se actualizará con feedback y el contenido del siguiente paso.
 
 **¿Problemas? 🤷**
 
