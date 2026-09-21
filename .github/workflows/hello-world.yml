@@ -3,7 +3,12 @@ name: Hello World
 on:
   push:
     branches:
-      -main
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '30 11 21 09 MON'
   workflow_dispatch:
 
 jobs:
@@ -17,4 +22,4 @@ jobs:
         run: echo "¡Hola! Este es mi primer workflow de GitHub Actions 🎉"
         
       - name: Mostrar los archivos del repositorio
-        run: ls - la
+        run: ls -la
