@@ -1,11 +1,20 @@
 name: Hello World
 
 on:
+  push:
+    branches:
+      -main
   workflow_dispatch:
 
 jobs:
   saludar:
     runs-on: ubuntu-latest
     steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+        
       - name: Decir hola
         run: echo "¡Hola! Este es mi primer workflow de GitHub Actions 🎉"
+        
+      - name: Mostrar los archivos del repositorio
+        run: ls - la
