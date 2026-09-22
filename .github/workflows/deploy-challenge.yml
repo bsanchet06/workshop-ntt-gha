@@ -1,0 +1,39 @@
+name: Prueba de flujo completo
+
+on:
+  workflow_dispatch:
+
+env:
+  APP_NAME: "mi-aplicacion-web"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ENVIRONMENT: "staging"
+
+    steps:
+      - name: Diagnostico y Contextos
+        run: |
+          echo "Actor: ${{ github.actor }}"
+          echo "Ref: ${{ github.ref }}"
+
+      - name: Despliegue simulado
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+
+        run: |
+          echo "Desplegando aplicación"
+          echo "$APP_NAME"
+
+          echo "Desplegando en el ambiente"
+          echo "$ENVIRONMENT"
+
+          if [ -n "$DEPLOY_KEY" ]; then
+            echo "La clave fue leída con éxito"
+            echo "${DEPLOY_KEY:0:3}***"
+          else
+            echo "No se encontró el secreto"
+            exit 1
+          fi
